@@ -54,17 +54,17 @@ public class Principal {
                 .limit(5)
                 .forEach(System.out::println);
 
-        System.out.println("Digite o trecho de um título para buscá-lo: ");
-        var trechoTitulo = leitura.nextLine();
-
-        Optional<Episodio> resultado = episodios.stream()
-                .filter(episodio -> episodio.getTitulo().matches("(?i).*" + trechoTitulo + ".*")).findFirst();
-
-        if (resultado.isPresent()) {
-            System.out.println("Episódio encontrado!");
-            System.out.println("\nTemporada: " + resultado.get().getNumeroTemporada() +
-                " Título: " + resultado.get().getTitulo());
-        }
+//        System.out.println("Digite o trecho de um título para buscá-lo: ");
+//        var trechoTitulo = leitura.nextLine();
+//
+//        Optional<Episodio> resultado = episodios.stream()
+//                .filter(episodio -> episodio.getTitulo().matches("(?i).*" + trechoTitulo + ".*")).findFirst();
+//
+//        if (resultado.isPresent()) {
+//            System.out.println("Episódio encontrado!");
+//            System.out.println("\nTemporada: " + resultado.get().getNumeroTemporada() +
+//                " Título: " + resultado.get().getTitulo());
+//        }
 
 //        System.out.println("\nInsira o ano para filtrar episódios a partir dele: ");
 //
@@ -85,6 +85,18 @@ public class Principal {
 //
 //                ));
 
+        Map<Integer, Double> avaliacaoPorTemporada = episodios.stream()
+                .filter(episodio -> episodio.getAvaliacao() > 0)
+                .collect(Collectors.groupingBy(Episodio::getNumeroTemporada, Collectors.averagingDouble(Episodio::getAvaliacao)));
 
+        System.out.println(avaliacaoPorTemporada);
+
+        DoubleSummaryStatistics estatistica = episodios.stream()
+                .filter(episodio -> episodio.getAvaliacao() > 0)
+                .collect(Collectors.summarizingDouble(Episodio::getAvaliacao));
+
+        System.out.println("Média " + estatistica.getAverage() +
+                            "\nMaior Avaliação: " + estatistica.getMax() +
+                            "\nMenor Avaliação: " + estatistica.getMin());
     }
 }
