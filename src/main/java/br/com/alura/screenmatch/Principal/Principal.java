@@ -1,15 +1,19 @@
 package br.com.alura.screenmatch.Principal;
 
+import br.com.alura.screenmatch.Repository.SerieRepository;
 import br.com.alura.screenmatch.dto.DadosSerie;
 import br.com.alura.screenmatch.dto.DadosTemporada;
 import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.model.Serie;
 import br.com.alura.screenmatch.service.ConsumoAPI;
 import br.com.alura.screenmatch.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class Principal {
 
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
@@ -18,7 +22,12 @@ public class Principal {
     private List<DadosTemporada> temporadas = new ArrayList<>();
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConverteDados conversor = new ConverteDados();
-    private List<Serie> seriesBuscadas = new ArrayList<>();
+    private List<Serie> seriesBuscadas;
+    private SerieRepository serieRepository;
+
+    public Principal(SerieRepository repository) {
+        this.serieRepository = repository;
+    }
 
     public void exibirMenu() {
 
@@ -37,7 +46,11 @@ public class Principal {
                     """;
 
             System.out.println(menu);
-            opcao = this.leitura.nextInt();
+            try {
+                opcao = this.leitura.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println();
+            }
             leitura.nextLine();
 
             switch (opcao) {
@@ -45,14 +58,15 @@ public class Principal {
                 case 2 -> buscaEpisodio();
                 case 3 -> listarSeriesBuscadas();
                 case 0 -> System.out.println("Saindo...");
-                default -> System.out.println("Opção Inválida");
+                default -> System.out.println("Opção Inválida\n");
             }
 
         }
     }
 
     private void listarSeriesBuscadas() {
-        this.seriesBuscadas.forEach(System.out::println);
+        this.seriesBuscadas = this.serieRepository.findAll();
+        this.seriesBuscadas.stream().sorted(Comparator.comparing(Serie::getCategoria)).forEach(System.out::println);
     }
 
     private void buscaEpisodio() {
@@ -93,7 +107,6 @@ public class Principal {
         }
 
         System.out.println();
-        this.exibirMenu();
     }
 
     private void buscaSerie() {
@@ -103,9 +116,8 @@ public class Principal {
         var json = this.consumoAPI.obterDados(this.ENDERECO + nomeSerie + this.API_KEY);
         var dtoDadosSerie = this.conversor.obterDados(json, DadosSerie.class);
         var serie = new Serie(dtoDadosSerie);
-        this.seriesBuscadas.add(serie);
+        this.serieRepository.save(serie);
         System.out.println(serie);
         System.out.println();
-        this.exibirMenu();
     }
 }

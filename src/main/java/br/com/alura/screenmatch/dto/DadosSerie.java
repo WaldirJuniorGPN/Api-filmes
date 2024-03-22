@@ -8,8 +8,8 @@ public record DadosSerie(
         @JsonAlias("Title") String titulo,
         @JsonAlias("totalSeasons") Integer totalTemporadas,
         @JsonAlias("imdbRating") String pontuacao,
-        @JsonAlias("genre") String categoria,
-        @JsonAlias("poster") String imagem,
-        @JsonAlias("plote") String snipse
+        @JsonAlias("Genre") String categoria,
+        @JsonAlias("Poster") String imagem,
+        @JsonAlias("Plot") String snipse
 ) {
 }
